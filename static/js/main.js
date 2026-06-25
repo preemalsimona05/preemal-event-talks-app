@@ -39,14 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedTheme === 'light') {
             document.body.classList.remove('dark-theme');
             document.body.classList.add('light-theme');
+            themeToggleBtn.checked = true;
         } else {
             document.body.classList.remove('light-theme');
             document.body.classList.add('dark-theme');
+            themeToggleBtn.checked = false;
         }
     };
 
-    themeToggleBtn.addEventListener('click', () => {
-        if (document.body.classList.contains('dark-theme')) {
+    themeToggleBtn.addEventListener('change', () => {
+        if (themeToggleBtn.checked) {
             document.body.classList.remove('dark-theme');
             document.body.classList.add('light-theme');
             localStorage.setItem('theme', 'light');

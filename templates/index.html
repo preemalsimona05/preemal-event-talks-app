@@ -29,10 +29,14 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button id="theme-toggle" class="btn-icon" aria-label="Toggle theme">
-                    <i class="fa-solid fa-sun icon-sun"></i>
-                    <i class="fa-solid fa-moon icon-moon"></i>
-                </button>
+                <div class="theme-switch-container">
+                    <i class="fa-solid fa-moon switch-icon-moon"></i>
+                    <label class="switch" for="theme-toggle">
+                        <input type="checkbox" id="theme-toggle" aria-label="Toggle light or dark theme">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fa-solid fa-sun switch-icon-sun"></i>
+                </div>
                 <button id="refresh-btn" class="btn btn-secondary" aria-label="Refresh feed">
                     <i class="fa-solid fa-rotate"></i> <span>Refresh</span>
                 </button>

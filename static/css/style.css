@@ -224,11 +224,81 @@ h1 {
     transform: scale(1.05);
 }
 
-/* Light/Dark Theme Icons logic */
-body.dark-theme .icon-sun { display: block; }
-body.dark-theme .icon-moon { display: none; }
-body.light-theme .icon-sun { display: none; }
-body.light-theme .icon-moon { display: block; }
+/* Theme Toggle Switch Slider */
+.theme-switch-container {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.switch-icon-moon, .switch-icon-sun {
+    font-size: 1.1rem;
+    transition: color var(--transition-fast);
+}
+
+body.dark-theme .switch-icon-moon {
+    color: #38bdf8; /* Glowing light blue in dark mode */
+}
+
+body.dark-theme .switch-icon-sun {
+    color: var(--text-muted);
+}
+
+body.light-theme .switch-icon-moon {
+    color: var(--text-muted);
+}
+
+body.light-theme .switch-icon-sun {
+    color: #f59e0b; /* Bright golden yellow in light mode */
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-primary);
+    transition: all var(--transition-normal);
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background: var(--accent-gradient);
+    border-color: transparent;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+    background-color: #ffffff;
+}
 
 /* Main App Container */
 .app-container {
