@@ -8,9 +8,10 @@ A beautifully designed, premium web application built with **Python Flask** and 
 - **Smart Parsing & Classification:** Extracts and tags release notes automatically into categories: **Features**, **Bug Fixes**, **Deprecations**, and **Announcements**.
 - **Interactive Stats Dashboard:** Provides a quick bird's-eye view count of updates by category.
 - **Instant Search & Filters:** Filter notes instantly by keyword or category, with quick-badge controls and clickable dashboard cards.
+- **X (Twitter) Integration:** Instantly share individual updates. It automatically strips HTML tags, formats the title, and truncates descriptions to fit within character limits.
 - **Sort Capability:** View notes in chronological or reverse-chronological order.
 - **Responsive Premium Theme:** Styled with modern HSL CSS variables, custom scrollbars, micro-animations, glassmorphic layout, and full support for both **Dark Mode** and **Light Mode**.
-- **Cache Optimization:** Features a 5-minute caching mechanism to optimize feed retrieval and prevent rate-limiting.
+- **Cache Optimization:** Features a 5-minute caching mechanism to optimize feed retrieval and prevent rate-limiting, with a force-refresh capability built into the client-side refresh button.
 
 ## Getting Started
 
@@ -49,13 +50,14 @@ http://127.0.0.1:5000
 agy-cli-projects/
 ├── app.py                   # Flask server containing feed fetcher & XML parsing logic
 ├── requirements.txt         # Python package dependencies
+├── .gitignore               # Excluded development and configuration files
 ├── templates/
-│   └── index.html           # Main semantic HTML structure & layout
+│   └── index.html           # Main HTML structure & layout
 └── static/
     ├── css/
     │   └── style.css        # Theme stylesheet (Dark/Light tokens, animations, widgets)
     └── js/
-        └── main.js          # Core frontend logic (Theme toggle, real-time filters, stats)
+        └── main.js          # Core frontend logic (Theme toggle, real-time filters, stats, X sharing)
 ```
 
 ## Customization
