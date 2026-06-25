@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // State Variables
     let allReleases = [];
+    let filteredReleases = [];
     let activeFilter = 'all';
     let searchQuery = '';
     let sortBy = 'newest';
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const themeToggleBtn = document.getElementById('theme-toggle');
     const refreshBtn = document.getElementById('refresh-btn');
+    const exportBtn = document.getElementById('export-btn');
     const retryBtn = document.getElementById('retry-btn');
     const resetFiltersBtn = document.getElementById('reset-filters-btn');
     
@@ -130,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
         });
 
+        filteredReleases = filtered;
         renderReleases(filtered);
     };
 
@@ -201,6 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${release.content}
                 </div>
                 <div class="card-actions">
+                    <button class="btn-copy" aria-label="Copy to Clipboard">
+                        <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                    </button>
                     <button class="btn-tweet" aria-label="Tweet this update">
                         <i class="fa-brands fa-x-twitter"></i> <span>Tweet</span>
                     </button>
@@ -215,13 +221,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Tweet button click handler
+            // HTML stripping utility
             const stripHtml = (html) => {
                 const tmp = document.createElement("div");
                 tmp.innerHTML = html;
                 return tmp.textContent || tmp.innerText || "";
             };
 
+            // Copy button click handler
+            const copyBtn = card.querySelector('.btn-copy');
+            copyBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent card selection/expansion trigger
+                
+                const plainText = stripHtml(release.content).replace(/\s+/g, ' ').trim();
+                const copyText = `BigQuery Update (${release.title}):\n${plainText}`;
+                
+                navigator.clipboard.writeText(copyText).then(() => {
+                    const icon = copyBtn.querySelector('i');
+                    const text = copyBtn.querySelector('span');
+                    icon.className = 'fa-solid fa-check';
+                    text.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        icon.className = 'fa-regular fa-copy';
+                        text.textContent = 'Copy';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            });
+
+            // Tweet button click handler
             const tweetBtn = card.querySelector('.btn-tweet');
             tweetBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); // Prevent card selection/expansion trigger
@@ -336,6 +368,62 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     retryBtn.addEventListener('click', () => fetchReleases(true));
+
+    // Export to CSV handler
+    exportBtn.addEventListener('click', () => {
+        if (!filteredReleases || filteredReleases.length === 0) {
+            alert('No release notes available to export.');
+            return;
+        }
+
+        // Helper to escape values for CSV
+        const escapeCSV = (val) => {
+            if (val === null || val === undefined) return '';
+            let formatted = val.toString().replace(/"/g, '""'); // escape double quotes
+            if (formatted.search(/("|,|\n)/g) >= 0) {
+                formatted = `"${formatted}"`; // wrap in quotes if it has comma, quote or newline
+            }
+            return formatted;
+        };
+
+        // CSV Header
+        let csvContent = "Date/Title,Categories,Content,ID\n";
+
+        // Helper to strip HTML for plain text CSV content
+        const stripHtml = (html) => {
+            const tmp = document.createElement("div");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        };
+
+        // CSV rows
+        filteredReleases.forEach(release => {
+            const date = escapeCSV(release.title);
+            const categories = escapeCSV(release.categories.join('; '));
+            const plainText = stripHtml(release.content).replace(/\s+/g, ' ').trim();
+            const content = escapeCSV(plainText);
+            const id = escapeCSV(release.id);
+            
+            csvContent += `${date},${categories},${content},${id}\n`;
+        });
+
+        // Trigger browser download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        
+        // Generate filename based on active filters
+        const categoryStr = activeFilter !== 'all' ? `-${activeFilter.toLowerCase().replace(/\s+/g, '-')}` : '';
+        const searchStr = searchQuery ? `-search-${searchQuery.toLowerCase().substring(0, 10).replace(/[^a-z0-9]/g, '')}` : '';
+        const filename = `bigquery-release-notes${categoryStr}${searchStr}.csv`;
+        
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
 
     // Reset filters handler
     resetFiltersBtn.addEventListener('click', () => {

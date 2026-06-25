@@ -767,6 +767,35 @@ body.light-theme .skeleton-card::after {
     border-top: 1px solid var(--border-color);
     padding-top: 0.75rem;
     margin-top: 0.5rem;
+    gap: 0.5rem;
+}
+
+.btn-copy {
+    background-color: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-xl);
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+
+.btn-copy:hover {
+    background-color: var(--bg-surface);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+}
+
+.btn-copy.copied {
+    background-color: var(--color-bug-bg) !important;
+    color: var(--color-bug) !important;
+    border-color: var(--color-bug) !important;
 }
 
 .btn-tweet {
