@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A beautifully animated explorer for Google Cloud BigQuery Release Notes. Search, filter, and browse releases in real-time with an elegant, responsive interface.">
+    <title>BigQuery Release Explorer</title>
+    <!-- Google Fonts: Outfit and Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dark-theme">
+    <div class="glow-bg"></div>
+    
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="logo-container">
+                    <i class="fa-solid fa-database logo-icon"></i>
+                </div>
+                <div>
+                    <h1 id="main-heading">BigQuery Release Explorer</h1>
+                    <p class="subtitle">Real-time update aggregator for Google Cloud BigQuery</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn-icon" aria-label="Toggle theme">
+                    <i class="fa-solid fa-sun icon-sun"></i>
+                    <i class="fa-solid fa-moon icon-moon"></i>
+                </button>
+                <button id="refresh-btn" class="btn btn-secondary" aria-label="Refresh feed">
+                    <i class="fa-solid fa-rotate"></i> <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- Dashboard & Statistics -->
+        <section class="stats-section" aria-label="Quick statistics dashboard">
+            <div class="stats-grid">
+                <div class="stat-card" id="stat-total">
+                    <div class="stat-icon"><i class="fa-solid fa-list-check"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value">-</span>
+                        <span class="stat-label">Total Releases</span>
+                    </div>
+                </div>
+                <div class="stat-card category-stat" data-cat="Feature">
+                    <div class="stat-icon icon-feature"><i class="fa-solid fa-star"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-feature">-</span>
+                        <span class="stat-label">Features</span>
+                    </div>
+                </div>
+                <div class="stat-card category-stat" data-cat="Bug Fix">
+                    <div class="stat-icon icon-bug"><i class="fa-solid fa-bug"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-bug">-</span>
+                        <span class="stat-label">Bug Fixes</span>
+                    </div>
+                </div>
+                <div class="stat-card category-stat" data-cat="Deprecation">
+                    <div class="stat-icon icon-warn"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="val-warn">-</span>
+                        <span class="stat-label">Deprecations</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters and Controls -->
+        <section class="controls-section" aria-label="Search and filter controls">
+            <div class="search-bar-container">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search releases by keyword, date, or feature details..." aria-label="Search release notes">
+                <button id="clear-search" class="clear-btn" aria-label="Clear search input">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <span class="filter-label">Categories:</span>
+                    <div class="filter-badges" id="category-filters">
+                        <button class="badge active" data-filter="all">All Updates</button>
+                        <button class="badge" data-filter="Feature"><i class="fa-solid fa-star"></i> Features</button>
+                        <button class="badge" data-filter="Bug Fix"><i class="fa-solid fa-bug"></i> Bug Fixes</button>
+                        <button class="badge" data-filter="Deprecation"><i class="fa-solid fa-triangle-exclamation"></i> Deprecations</button>
+                        <button class="badge" data-filter="Announcement"><i class="fa-solid fa-bullhorn"></i> Announcements</button>
+                    </div>
+                </div>
+                
+                <div class="sort-group">
+                    <span class="filter-label">Sort By:</span>
+                    <select id="sort-select" class="custom-select" aria-label="Sort releases">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Release Notes Feed -->
+        <section class="feed-section">
+            <div class="feed-header">
+                <h2 id="feed-title">All Release Notes</h2>
+                <span id="results-count" class="count-tag">0 results</span>
+            </div>
+
+            <!-- Loader Skeleton -->
+            <div id="loader-skeleton" class="skeleton-container">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="error-container hidden">
+                <i class="fa-solid fa-circle-exclamation error-icon"></i>
+                <h3>Unable to load release notes</h3>
+                <p id="error-message">Something went wrong while connecting to the BigQuery release feed.</p>
+                <button id="retry-btn" class="btn btn-primary">Try Again</button>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-container hidden">
+                <i class="fa-solid fa-magnifying-glass-minus empty-icon"></i>
+                <h3>No release notes match your criteria</h3>
+                <p>Try adjusting your search keywords or category filters.</p>
+                <button id="reset-filters-btn" class="btn btn-secondary">Reset Filters</button>
+            </div>
+
+            <!-- Releases Container -->
+            <div id="releases-container" class="releases-grid">
+                <!-- Programmatically populated cards will go here -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 BigQuery Release Explorer. Built for preemal. Fetching from <a href="https://docs.cloud.google.com/feeds/bigquery-release-notes.xml" target="_blank" rel="noopener noreferrer">GCP Feed <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
